@@ -55,8 +55,11 @@ class MemoryBoard extends React.Component {
 class MemoryTimer extends React.Component {
   render() {
     return (
-      <div>
-        TIMER
+      <div className="timer">
+        <div className="progress-bar">
+          <div className="filler" style={{width: this.props.percentage + '%'}}>
+          </div>
+        </div>
       </div>
     );
   }
@@ -72,11 +75,17 @@ class MemoryGame extends React.Component {
       firstCardTurned: null,
       secondCardTurned: null,
       cardsWon: {},
+      time: 0
     };
     this.ClickCard = this.ClickCard.bind(this);
     this.shuffleCards = this.shuffleCards.bind(this);
-    this.checkWin = this.checkWin.bind(this);
+    this.checkWinOrLoose = this.checkWinOrLoose.bind(this);
     this.reset = this.reset.bind(this);
+    this.startTimer = this.startTimer.bind(this);
+    this.stopTimer = this.stopTimer.bind(this);
+
+    this.timer = null;
+    this.time = 0;
   }
 
   shuffleCards() {
@@ -113,6 +122,10 @@ class MemoryGame extends React.Component {
       return
     }
 
+    if (this.timer === null) {
+      this.startTimer()
+    }
+
     // On récupère la carte sur laquelle on a cliqué
     let cardClicked = newCards[i];
 
@@ -145,34 +158,59 @@ class MemoryGame extends React.Component {
     }
   }
 
-  checkWin() {
-    console.log(this.state.cardsWon, Object.keys(this.state.cardsWon).length)
-    if (Object.keys(this.state.cardsWon).length === this.props.cardsNumber) {
+  checkWinOrLoose() {
+    if (this.state.time >= this.props.maxTime) {
+      this.stopTimer()
+      setTimeout(() => {
+        alert("Vous avez perdu....");
+        this.reset();
+      }, 200)
+    } else if (Object.keys(this.state.cardsWon).length === this.props.cardsNumber) {
+      this.stopTimer()
       // TODO : send score
-      alert("Vous avez gagné !!!");
-      this.reset();
+      // La fonction alert() bloquant tout changement d'état et re-rendering,
+      // on préfère la lancer après quelques millisecondes, pour que React ait le temps de re-render
+      setTimeout(() => {
+        alert("Vous avez gagné !!!");
+        this.reset();
+      }, 100)
     }
   }
 
   componentDidUpdate() {
-    this.checkWin();
+    this.checkWinOrLoose();
   }
 
   reset() {
     let cards = this.shuffleCards()
+    this.stopTimer()
     this.setState({
       cards: cards,
       firstCardTurned: null,
       secondCardTurned: null,
       cardsWon: {},
+      time: 0,
     });
+  }
+
+  startTimer() {
+    this.timer = setInterval(() => {
+      this.setState({time: this.state.time + 200})
+    }, 200);
+  }
+
+  stopTimer() {
+    if (this.timer !== null) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
   }
 
   render() {
     return (
       <div className="Game">
         <MemoryBoard cards={this.state.cards} ClickCard={this.ClickCard} cardsNumber={this.props.cardsNumber} />
-        <MemoryTimer/>
+        <MemoryTimer percentage={Math.min(this.state.time / this.props.maxTime * 100, 100)} />
       </div>
     );
   }
@@ -181,7 +219,7 @@ class MemoryGame extends React.Component {
 function App() {
   return (
     <div className="App">
-      <MemoryGame cardsNumber={4} />
+      <MemoryGame cardsNumber={4} maxTime={20000} />
     </div>
   );
 }

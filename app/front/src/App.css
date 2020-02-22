@@ -9,6 +9,24 @@
   width: 80vw;
 }
 
+.timer {
+  margin-top: 5vh;
+  width: 80vw;
+}
+
+.progress-bar {
+  height: 20px;
+  width: 100%;
+  border-radius: 50px;
+  border: 1px solid #333;
+}
+.filler {
+  background: red;
+  height: 100%;
+  border-radius: inherit;
+  transition: width .2s ease-in;
+}
+
 .board {
   display: flex;
   flex-wrap: wrap;
