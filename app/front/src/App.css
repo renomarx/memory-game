@@ -7,23 +7,75 @@
   margin-right: auto;
   margin-top: 5vh;
   width: 80vw;
-  height: 80vh;
 }
 
 .board {
-  width: 100%;
-  height: 100%;
-}
-
-.cards-row {
-  width: 100%;
-  height: 15%;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .card {
-  width: 15%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
   background-color: #eeeeee;
   border: 5px solid #aaaaff;
+}
+
+.card-front {
+  width: 100px;
+  height: 100px;
+}
+.card-front-0 {
+  background: url(cards.png) 0 0;
+}
+.card-front-1 {
+  background: url(cards.png) 0 100px;
+}
+.card-front-2 {
+  background: url(cards.png) 0 200px;
+}
+.card-front-3 {
+  background: url(cards.png) 0 300px;
+}
+.card-front-4 {
+  background: url(cards.png) 0 400px;
+}
+.card-front-5 {
+  background: url(cards.png) 0 500px;
+}
+.card-front-6 {
+  background: url(cards.png) 0 600px;
+}
+.card-front-7 {
+  background: url(cards.png) 0 700px;
+}
+.card-front-8 {
+  background: url(cards.png) 0 800px;
+}
+.card-front-9 {
+  background: url(cards.png) 0 900px;
+}
+.card-front-10 {
+  background: url(cards.png) 0 1000px;
+}
+.card-front-11 {
+  background: url(cards.png) 0 1100px;
+}
+.card-front-12 {
+  background: url(cards.png) 0 1200px;
+}
+.card-front-13 {
+  background: url(cards.png) 0 1300px;
+}
+.card-front-14 {
+  background: url(cards.png) 0 1400px;
+}
+.card-front-15 {
+  background: url(cards.png) 0 1500px;
+}
+.card-front-16 {
+  background: url(cards.png) 0 1600px;
+}
+.card-front-17 {
+  background: url(cards.png) 0 1700px;
 }

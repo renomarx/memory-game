@@ -7,7 +7,6 @@ function getRandomInt(max) {
 
 class Card extends React.Component {
   render() {
-    console.log(this.props.card);
     let card = this.props.card;
     if (card === undefined) {
       return (
@@ -19,12 +18,10 @@ class Card extends React.Component {
       <div className="card" onClick={() => this.props.ClickCard(card.pos)}>
         {card.turned
         ?
-        <div className={"card-front card-front-" + card.pos}>
-          {card.pos} : {card.val}
+        <div className={"card-front card-front-" + card.val}>
         </div>
         :
         <div className="card-back">
-          {/* TODO */}
         </div>
         }
       </div>
@@ -38,28 +35,18 @@ class MemoryBoard extends React.Component {
     return <Card card={this.props.cards[i]} key={i} ClickCard={this.props.ClickCard} />;
   }
 
-  renderCardsRow(i) {
+  renderCards() {
     let cards = [];
-    let firstIndex = i * 6;
-    for (let x = firstIndex; x < firstIndex+6; x++) {
-      cards.push(this.renderCard(x));
+    for (let i = 0; i < this.props.cardsNumber * 2; i++) {
+      cards.push(this.renderCard(i));
     }
-    return (
-      <div className="cards-row">
-        {cards}
-      </div>
-    )
+    return cards
   }
 
   render() {
     return (
       <div className="board">
-        {this.renderCardsRow(0)}
-        {this.renderCardsRow(1)}
-        {this.renderCardsRow(2)}
-        {this.renderCardsRow(3)}
-        {this.renderCardsRow(4)}
-        {this.renderCardsRow(5)}
+        {this.renderCards()}
       </div>
     );
   }
@@ -78,15 +65,7 @@ class MemoryTimer extends React.Component {
 class MemoryGame extends React.Component {
   constructor(props) {
     super(props);
-    let cards = [];
-    let availableValues = [...Array(36).keys()];
-    for (let i = 0; i < 36; i++) {
-      let card = {pos: i, turned: false};
-      let r = getRandomInt(availableValues.length);
-      card.val = availableValues[r] % 18;
-      cards.push(card);
-      availableValues.splice(r, 1);
-    }
+    let cards = this.shuffleCards()
     console.log(cards);
     this.state = {
       cards: cards,
@@ -95,10 +74,36 @@ class MemoryGame extends React.Component {
       cardsWon: {},
     };
     this.ClickCard = this.ClickCard.bind(this);
+    this.shuffleCards = this.shuffleCards.bind(this);
+    this.checkWin = this.checkWin.bind(this);
+    this.reset = this.reset.bind(this);
+  }
+
+  shuffleCards() {
+    let cardsTotal = this.props.cardsNumber * 2
+    if (cardsTotal > 36) {
+      console.error("Le jeu ne peut tourner qu'avec 36 cartes (18 différentes) maximum")
+    }
+    let cards = [];
+    let availableValues = [...Array(cardsTotal).keys()]; // [0,1,2,3,...,34,35]
+    for (let i = 0; i < cardsTotal; i++) {
+      let card = {pos: i, turned: false};
+      let r = getRandomInt(availableValues.length);
+      card.val = availableValues[r] % this.props.cardsNumber;
+      cards.push(card);
+      availableValues.splice(r, 1);
+    }
+    return cards
   }
 
   ClickCard(i) {
+    // Toujours cloner le state pour changer d'état
+    // Pour les objets, on utilise newState = { ...state } pour cloner un objet
+    // Pour les tableaux, on peut utiliser la méthode slice
+    let newCardsWon = { ...this.state.cardsWon };
     let newCards = this.state.cards.slice();
+
+    // Avant d'accéder à un index d'un tableau, vérifier qu'il existe bien
     if (newCards[i] === undefined) {
       // Ne devrait pas se produire
       return
@@ -107,42 +112,66 @@ class MemoryGame extends React.Component {
       // La carte est déjà retournée, on sort
       return
     }
-    let newCardsWon = {...this.state.cardsWon};
-    let cardTurned = newCards[i]
+
+    // On récupère la carte sur laquelle on a cliqué
+    let cardClicked = newCards[i];
 
     // On retourne la carte sur laquelle on vient de cliquer
-    newCards[i].turned = true;
+    cardClicked.turned = true;
 
     if (this.state.firstCardTurned != null) {
       // La première carte est déjà retournée
       if (this.state.secondCardTurned != null) {
         // 2 cartes sont déjà retournées, on vient de clicker sur une 3ème
         if (!newCardsWon[this.state.firstCardTurned.val]) {
-          // Si elles ne sont pas gagnées, on les retourne
-          newCards[this.state.firstCardTurned.pos].turned = false
-          newCards[this.state.secondCardTurned.pos].turned = false
+          // Si elles ne sont pas gagnées, on les retourne à l'envers
+          newCards[this.state.firstCardTurned.pos].turned = false;
+          newCards[this.state.secondCardTurned.pos].turned = false;
         }
-        // La carte retournée devient la 1ere carte retournée
-        this.setState({cards: newCards, firstCardTurned: cardTurned, secondCardTurned: null})
+        // La carte cliquée devient la 1ere carte retournée
+        this.setState({cards: newCards, firstCardTurned: cardClicked, secondCardTurned: null});
       } else {
         // La première carte est déjà retournée, on vient de retourner la 2ème
-        if (cardTurned.val === this.state.firstCardTurned.val) {
+        if (cardClicked.val === this.state.firstCardTurned.val) {
           // Les 2 cartes sont les mêmes, on les marque comme gagnées
-          newCardsWon[cardTurned.val] = true
+          newCardsWon[cardClicked.val] = true;
         }
         // La carte retournée devient la 2ème carte retournée
-        this.setState({cards: newCards, cardsWon: newCardsWon, secondCardTurned: cardTurned})
+        this.setState({cards: newCards, cardsWon: newCardsWon, secondCardTurned: cardClicked});
       }
     } else {
-      this.setState({cards: newCards, firstCardTurned: cardTurned})
+      // Aucune carte n'est retournée, la carte cliquée devient la première carte retournée
+      this.setState({cards: newCards, firstCardTurned: cardClicked});
     }
-    // TODO : check if won
+  }
+
+  checkWin() {
+    console.log(this.state.cardsWon, Object.keys(this.state.cardsWon).length)
+    if (Object.keys(this.state.cardsWon).length === this.props.cardsNumber) {
+      // TODO : send score
+      alert("Vous avez gagné !!!");
+      this.reset();
+    }
+  }
+
+  componentDidUpdate() {
+    this.checkWin();
+  }
+
+  reset() {
+    let cards = this.shuffleCards()
+    this.setState({
+      cards: cards,
+      firstCardTurned: null,
+      secondCardTurned: null,
+      cardsWon: {},
+    });
   }
 
   render() {
     return (
       <div className="Game">
-        <MemoryBoard cards={this.state.cards} ClickCard={this.ClickCard} />
+        <MemoryBoard cards={this.state.cards} ClickCard={this.ClickCard} cardsNumber={this.props.cardsNumber} />
         <MemoryTimer/>
       </div>
     );
@@ -152,7 +181,7 @@ class MemoryGame extends React.Component {
 function App() {
   return (
     <div className="App">
-      <MemoryGame/>
+      <MemoryGame cardsNumber={4} />
     </div>
   );
 }
