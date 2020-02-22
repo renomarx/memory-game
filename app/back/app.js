@@ -5,10 +5,6 @@ const cors = require('cors');
 const app = express();
 let port = 3333;
 
-if (process.env.API_PORT) {
-  port = process.env.API_PORT;
-}
-
 // Middleware permettant de décoder le json du body d'une requête,
 // avant de le passer au handler de route
 app.use(express.json());
