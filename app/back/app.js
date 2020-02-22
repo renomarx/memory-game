@@ -3,7 +3,11 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const port = 3333;
+let port = 3333;
+
+if (process.env.API_PORT) {
+  port = process.env.API_PORT;
+}
 
 // Middleware permettant de décoder le json du body d'une requête,
 // avant de le passer au handler de route
@@ -21,7 +25,11 @@ app.get('/scores', (req, res) => {
 
 // Route pour insérer un nouveau score
 app.post('/scores', (req, res) => {
-  let score = req.body
+  let score = req.body;
+  // On contrôle si on a bien un score différent de 0ms (faut pas déconner)
+  if (score.duration === undefined || score.duration === 0) {
+    return res.status(400).json({ error: "Score duration cannot be 0."})
+  }
   // L'ORM sequelize s'occupe de transformer cet appel create en requête SQL,
   // en fonction du model déclaré dans models/score.js
   models.Score.create(score).then((score) => {
@@ -32,8 +40,8 @@ app.post('/scores', (req, res) => {
     // Si une erreur quelconque arrive, on loggue dans la console,
     // et on renvoie un code d'erreur 500, pour que le client soit informé
     // (sinon il attendrait indéfiniment une réponse en cas d'erreur)
-    console.log(err)
-    res.status(500)
+    console.log(err);
+    res.status(500).json({ error: "An error occured during save."});
   })
 
 });

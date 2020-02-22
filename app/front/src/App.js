@@ -1,5 +1,13 @@
 import React from 'react';
+import moment from 'moment';
 import './App.css';
+
+// Par défaut (dev), l'API sera accessible en local sur le port 3333
+let APIUrl = "http://localhost:3333"
+// Permet la surcharge si déclarée en variable d'environnement (REACT_APP_API_URL)
+if (process.env.API_URL) {
+  APIUrl = process.env.API_URL
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -52,6 +60,32 @@ class MemoryBoard extends React.Component {
   }
 }
 
+class ScoresBoard extends React.Component {
+
+  render() {
+    let scores = []
+    for (let i in this.props.scores) {
+      let score = this.props.scores[i]
+      let dateFormatted = moment(score.createdAt).format('DD/MM/YYYY à HH:mm:ss')
+      scores.push(
+        <li className="score" key={i}>
+          Le {dateFormatted} : <b>{score.duration / 1000} secondes</b>
+        </li>
+      )
+    }
+    return (
+      <div className="scores-board">
+        <div className="scores-title">
+          Meilleurs scores:
+        </div>
+        <ol className="scores-list">
+          {scores}
+        </ol>
+      </div>
+    )
+  }
+}
+
 class MemoryTimer extends React.Component {
   render() {
     return (
@@ -75,17 +109,40 @@ class MemoryGame extends React.Component {
       firstCardTurned: null,
       secondCardTurned: null,
       cardsWon: {},
-      time: 0
+      time: 0,
+      scoresLoaded: false,
+      scores: []
     };
     this.ClickCard = this.ClickCard.bind(this);
     this.shuffleCards = this.shuffleCards.bind(this);
-    this.checkWinOrLoose = this.checkWinOrLoose.bind(this);
+    this.checkWin = this.checkWin.bind(this);
+    this.checkLoose = this.checkLoose.bind(this);
     this.reset = this.reset.bind(this);
     this.startTimer = this.startTimer.bind(this);
     this.stopTimer = this.stopTimer.bind(this);
 
     this.timer = null;
     this.time = 0;
+  }
+
+  componentDidMount() {
+    this.fetchBestScores()
+  }
+
+  fetchBestScores() {
+    fetch(APIUrl + "/scores")
+      .then(res => res.json())
+      .then(
+        (scores) => {
+          this.setState({
+            scoresLoaded: true,
+            scores: scores
+          });
+        },
+        (error) => {
+          console.error(error)
+        }
+      )
   }
 
   shuffleCards() {
@@ -150,7 +207,7 @@ class MemoryGame extends React.Component {
           newCardsWon[cardClicked.val] = true;
         }
         // La carte retournée devient la 2ème carte retournée
-        this.setState({cards: newCards, cardsWon: newCardsWon, secondCardTurned: cardClicked});
+        this.setState({cards: newCards, cardsWon: newCardsWon, secondCardTurned: cardClicked}, () => this.checkWin());
       }
     } else {
       // Aucune carte n'est retournée, la carte cliquée devient la première carte retournée
@@ -158,16 +215,11 @@ class MemoryGame extends React.Component {
     }
   }
 
-  checkWinOrLoose() {
-    if (this.state.time >= this.props.maxTime) {
+  checkWin() {
+    if (Object.keys(this.state.cardsWon).length === this.props.cardsNumber) {
       this.stopTimer()
-      setTimeout(() => {
-        alert("Vous avez perdu....");
-        this.reset();
-      }, 200)
-    } else if (Object.keys(this.state.cardsWon).length === this.props.cardsNumber) {
-      this.stopTimer()
-      // TODO : send score
+      // On envoie le score au serveur web
+      this.sendScore()
       // La fonction alert() bloquant tout changement d'état et re-rendering,
       // on préfère la lancer après quelques millisecondes, pour que React ait le temps de re-render
       setTimeout(() => {
@@ -177,8 +229,14 @@ class MemoryGame extends React.Component {
     }
   }
 
-  componentDidUpdate() {
-    this.checkWinOrLoose();
+  checkLoose() {
+    if (this.timer != null && this.state.time >= this.props.maxTime) {
+      this.stopTimer()
+      setTimeout(() => {
+        alert("Vous avez perdu....");
+        this.reset();
+      }, 200)
+    }
   }
 
   reset() {
@@ -196,6 +254,7 @@ class MemoryGame extends React.Component {
   startTimer() {
     this.timer = setInterval(() => {
       this.setState({time: this.state.time + 200})
+      this.checkLoose()
     }, 200);
   }
 
@@ -206,9 +265,35 @@ class MemoryGame extends React.Component {
     }
   }
 
+  sendScore() {
+    // On crée l'objet score
+    let score = {
+      duration: this.state.time
+    }
+    // On l'envoie au serveur via une requête POST, en json
+    fetch(APIUrl + "/scores", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(score)
+    })
+      .then(res => res.json())
+      .then(
+        (score) => {
+          // Afin de rafraichir la liste des meilleurs scores, on rappelle le fetch
+          this.fetchBestScores()
+        },
+        (error) => {
+          console.error("L'envoi du score au serveur a échoué.", error)
+        }
+      )
+  }
+
   render() {
     return (
       <div className="Game">
+        {this.state.time === 0 ? <ScoresBoard scores={this.state.scores} /> : null}
         <MemoryBoard cards={this.state.cards} ClickCard={this.ClickCard} cardsNumber={this.props.cardsNumber} />
         <MemoryTimer percentage={Math.min(this.state.time / this.props.maxTime * 100, 100)} />
       </div>

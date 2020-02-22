@@ -27,15 +27,28 @@
   transition: width .2s ease-in;
 }
 
+.scores-board {
+  background-color: #eee;
+  font-size: 13px;
+  text-align: left;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.scores-title {
+  font-weight: bold;
+}
+
 .board {
   display: flex;
   flex-wrap: wrap;
+  background-color: #eee;
 }
 
 .card {
   width: 100px;
   height: 100px;
-  background-color: #eeeeee;
+  background-color: #ccc;
   border: 5px solid #aaaaff;
 }
 
