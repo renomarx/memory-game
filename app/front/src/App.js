@@ -130,7 +130,7 @@ class MemoryGame extends React.Component {
   }
 
   fetchBestScores() {
-    fetch(APIUrl + "/scores")
+    fetch(APIUrl + "/scores?limit=3")
       .then(res => res.json())
       .then(
         (scores) => {

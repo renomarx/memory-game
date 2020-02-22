@@ -18,7 +18,18 @@ app.use(cors())
 
 // Route pour récupérer tous les scores
 app.get('/scores', (req, res) => {
-  models.Score.findAll().then(function(scores) {
+  let options = {
+    order: [
+      ['duration', 'ASC'], // Pour avoir les meilleurs en premier
+    ],
+    limit: 10, // Par défaut, on limite à 10 résultats
+  }
+  // On permet de surcharger la limite par un paramètre GET
+  if (req.query.limit) {
+    options.limit = req.query.limit;
+  }
+  // Sequelize gènèrera le SQL permettant d'aller chercher les scores, selon nos options
+  models.Score.findAll(options).then(function(scores) {
     res.status(200).json(scores)
   });
 });
