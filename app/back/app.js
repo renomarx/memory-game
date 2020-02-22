@@ -1,11 +1,16 @@
 const models  = require('./models');
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 const port = 3333;
 
 // Middleware permettant de décoder le json du body d'une requête,
 // avant de le passer au handler de route
 app.use(express.json());
+
+// Middleware permettant de donner les bons headers CORS à chaque réponse
+app.use(cors())
 
 // Route pour récupérer tous les scores
 app.get('/scores', (req, res) => {
