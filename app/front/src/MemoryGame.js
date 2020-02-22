@@ -3,17 +3,8 @@ import './App.css';
 import ScoresBoard from './ScoresBoard.js';
 import MemoryBoard from './MemoryBoard.js';
 import MemoryTimer from './MemoryTimer.js';
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
-// Par défaut (dev), l'API sera accessible en local sur le port 3333
-let APIUrl = "http://localhost:3333"
-// Permet la surcharge si déclarée en variable d'environnement (REACT_APP_API_URL)
-if (process.env.API_URL) {
-  APIUrl = process.env.API_URL
-}
+import { getRandomInt } from './utils.js';
+import { APIUrl } from './config.js';
 
 class MemoryGame extends React.Component {
   constructor(props) {
@@ -138,7 +129,7 @@ class MemoryGame extends React.Component {
       // La fonction alert() bloquant tout changement d'état et re-rendering,
       // on préfère la lancer après quelques millisecondes, pour que React ait le temps de re-render
       setTimeout(() => {
-        alert("Vous avez gagné !!!");
+        alert(`Vous avez gagné en ${this.state.time / 1000} secondes !!!`);
         this.reset();
       }, 100)
     }

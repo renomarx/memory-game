@@ -1,9 +1,10 @@
 import React from 'react';
-import moment from 'moment';
 import './App.css';
 import MemoryGame from './MemoryGame.js';
 
-
+// Composant principal
+// cardsNumber correspond au nombre de cartes différentes sur le plateau (max 18)
+// maxTime correspond au temps limite pour une partie
 function App() {
   return (
     <div className="App">
