@@ -19,7 +19,6 @@ class MemoryGame extends React.Component {
   constructor(props) {
     super(props);
     let cards = this.shuffleCards()
-    console.log(cards);
     this.state = {
       cards: cards,
       firstCardTurned: null,

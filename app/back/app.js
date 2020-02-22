@@ -51,7 +51,7 @@ app.post('/scores', (req, res) => {
     // Si une erreur quelconque arrive, on loggue dans la console,
     // et on renvoie un code d'erreur 500, pour que le client soit informé
     // (sinon il attendrait indéfiniment une réponse en cas d'erreur)
-    console.log(err);
+    console.error(err);
     res.status(500).json({ error: "An error occured during save."});
   })
 
