@@ -8,7 +8,7 @@ import MemoryGame from './MemoryGame.js';
 function App() {
   return (
     <div className="App">
-      <MemoryGame cardsNumber={18} maxTime={180000} />
+      <MemoryGame cardsNumber={18} maxTime={300000} />
     </div>
   );
 }
