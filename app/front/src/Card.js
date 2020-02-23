@@ -10,7 +10,7 @@ class Card extends React.Component {
     // La classe de la carte est détectée dynamiquement en fonction de sa valeur
     // Ce qui permet d'associer une valeur et une image (voir App.css)
     return (
-      <div className="card" onClick={() => this.props.ClickCard(card.pos)}>
+      <div className="card" onClick={() => this.props.ClickCard(card.pos)} data-testid={card.val}>
         {card.turned
         ?
         <div className={"card-front card-front-" + card.val}>

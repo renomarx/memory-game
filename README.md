@@ -107,3 +107,21 @@ Pour une application WEB classique, il vous suffira de faire pointer votre nom d
 - Progressive web app
 
 Suivre le même procédé que pour une web app classique, mais il vous faudra activer le https et le http2, pour le serveur front comme pour l'API. Vous pourrez par exemple mettre en place un reverse proxy Nginx qui vous facilitera la tâche.
+
+
+Tests automatisés
+-----------------
+
+Pour lancer les tests automatisés (unitaires et fonctionnels) :
+
+- Côté front:
+
+  ```
+  npm run test
+  ```
+
+- Côté back:
+
+  ```
+  npm run test
+  ```
