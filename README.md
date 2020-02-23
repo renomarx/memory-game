@@ -48,9 +48,25 @@ Pour lancer le jeu en mode développement (local, sans docker):
 **A noter:** les modifications front sont automatiquement compilées et la page du navigateur rafraichie, mais les modifications back nécessitent de re-lancer `npm start` pour constater les changements.
 
 
-Configuration (docker)
----------------------
+Configuration
+-------------
 
 Le fichier `docker-compose.yml` est un exemple de configuration des containers docker, pour faire tourner les 2 services sur la même machine, pour un environnement local.
 
-Vous pouvez vous en inspirer pour déployer sur votre propre infrastructure. Il vous faudra au moins changer la valeur `api_url: "http://192.168.0.1:3333"` pour la faire pointer vers votre propre URL.
+Vous pouvez vous en inspirer pour déployer sur votre propre infrastructure.
+
+- Configuration front
+
+  La configuration se fait en ajoutant un fichier `.env` :
+
+  ```
+  # app/front/.env
+  REACT_APP_API_URL=http://127.0.0.1:3333
+  ```
+
+  Changez la valeur par l'URL de votre API, une fois déployée sur votre serveur.
+
+
+  - Configuration back
+
+  Aucune configuration n'est nécessaire côté back.

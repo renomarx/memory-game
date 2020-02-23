@@ -1,3 +1,4 @@
+# Le service principal qui tournera pour ce container sera un serveur Nginx
 FROM nginx
 
 # Met à jour les paquets
@@ -22,9 +23,6 @@ RUN npm install
 
 # On copie le code source
 COPY . /usr/src/app
-
-ARG api_url
-ENV REACT_APP_API_URL=$api_url
 
 # Génération des fichiers statiques pour la production
 RUN npm run build

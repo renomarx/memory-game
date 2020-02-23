@@ -1,10 +1,7 @@
 version: '3'
 services:
     memory_front:
-        build:
-            context: app/front
-            args:
-                api_url: "http://192.168.0.1:3333"
+        build: app/front
         container_name: memory_front
         ports:
             - "3000:80"
