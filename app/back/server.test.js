@@ -7,6 +7,8 @@ describe('Testing app workflow', function () {
     const models  = require('./models');
     await models.sequelize.sync()
     server = require('./server');
+    let port = 3666;
+    server = server.listen(port, () => console.log(`Memory server for tests listening on port ${port}!`))
   });
   afterEach(function () {
     server.close();

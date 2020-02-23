@@ -3,7 +3,6 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-let port = 3333;
 
 // Middleware permettant de décoder le json du body d'une requête,
 // avant de le passer au handler de route
@@ -53,6 +52,6 @@ app.post('/scores', (req, res) => {
 
 });
 
-const server = app.listen(port, () => console.log(`Memory server listening on port ${port}!`));
+const server = app;
 
 module.exports = server;

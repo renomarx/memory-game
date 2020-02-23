@@ -6,5 +6,7 @@ models.sequelize.sync().then(() => {
   // Si la synchronisation de la BDD s'est bien passé, on peut lancer le serveur API
   console.log("Database models were synchronized successfully.");
 
-  require("./server");
+  const server = require("./server");
+  let port = 3333;
+  server.listen(port, () => console.log(`Memory server listening on port ${port}!`))
 })
